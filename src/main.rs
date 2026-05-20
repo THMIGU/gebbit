@@ -1,7 +1,6 @@
 mod vec2;
 mod vec3;
 
-use crate::vec2::Vec2;
 use crate::vec3::Vec3;
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
@@ -11,13 +10,15 @@ const TICK_RATE: f64 = 120_f64;
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
+const FOV: f32 = 70_f32;
+
 struct Mesh {
-	vertices: Vec<Vec3<f32>>,
-	indices: Vec<[u32; 3]>,
+	vertices: Vec<Vec3>,
+	indices: Vec<[usize; 3]>,
 }
 
 impl Mesh {
-	fn new(vertices: Vec<Vec3<f32>>, indices: Vec<[u32; 3]>) -> Self {
+	fn new(vertices: Vec<Vec3>, indices: Vec<[usize; 3]>) -> Self {
 		Self {
 			vertices: vertices,
 			indices: indices,
@@ -43,18 +44,18 @@ fn main() {
 		.event_pump()
 		.unwrap();
 
-	let vertices = vec![
-		Vec3::new(-0.5, -0.5, -0.5),
-		Vec3::new(0.5, -0.5, -0.5),
-		Vec3::new(0.5, 0.5, -0.5),
-		Vec3::new(-0.5, 0.5, -0.5),
-		Vec3::new(-0.5, -0.5, 0.5),
-		Vec3::new(0.5, -0.5, 0.5),
-		Vec3::new(0.5, 0.5, 0.5),
-		Vec3::new(-0.5, 0.5, 0.5),
+	let vertices: Vec<Vec3> = vec![
+		Vec3::new(-0.5, -0.5, -0.5 + 3_f32),
+		Vec3::new(0.5, -0.5, -0.5 + 3_f32),
+		Vec3::new(0.5, 0.5, -0.5 + 3_f32),
+		Vec3::new(-0.5, 0.5, -0.5 + 3_f32),
+		Vec3::new(-0.5, -0.5, 0.5 + 3_f32),
+		Vec3::new(0.5, -0.5, 0.5 + 3_f32),
+		Vec3::new(0.5, 0.5, 0.5 + 3_f32),
+		Vec3::new(-0.5, 0.5, 0.5 + 3_f32),
 	];
 
-	let indices = vec![
+	let indices: Vec<[usize; 3]> = vec![
 		[0, 1, 2],
 		[0, 2, 3],
 		[1, 5, 6],
@@ -95,6 +96,36 @@ fn main() {
 
 		canvas.set_draw_color(Color::BLACK);
 		canvas.clear();
+
+		canvas.set_draw_color(Color::RED);
+
+		let vertices = &cube_mesh.vertices;
+		let indices = &cube_mesh.indices;
+
+		for index in indices {
+			let v0 = vertices[index[0]];
+			let v1 = vertices[index[1]];
+			let v2 = vertices[index[2]];
+
+			let aspect = WINDOW_WIDTH as f32 / WINDOW_HEIGHT as f32;
+			let p0 = v0.proj(FOV.to_radians(), aspect);
+			let p1 = v1.proj(FOV.to_radians(), aspect);
+			let p2 = v2.proj(FOV.to_radians(), aspect);
+
+			let s0 = p0.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
+			let s1 = p1.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
+			let s2 = p2.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+			canvas
+				.draw_line(s0.as_point(), s1.as_point())
+				.unwrap();
+			canvas
+				.draw_line(s1.as_point(), s2.as_point())
+				.unwrap();
+			canvas
+				.draw_line(s2.as_point(), s0.as_point())
+				.unwrap();
+		}
 
 		canvas.present();
 	}
