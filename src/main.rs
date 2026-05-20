@@ -1,4 +1,8 @@
-use nalgebra::Vector3;
+mod vec2;
+mod vec3;
+
+use crate::vec2::Vec2;
+use crate::vec3::Vec3;
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
 
@@ -8,12 +12,12 @@ const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
 struct Mesh {
-	vertices: Vec<Vector3<f32>>,
+	vertices: Vec<Vec3<f32>>,
 	indices: Vec<[u32; 3]>,
 }
 
 impl Mesh {
-	fn new(vertices: Vec<Vector3<f32>>, indices: Vec<[u32; 3]>) -> Self {
+	fn new(vertices: Vec<Vec3<f32>>, indices: Vec<[u32; 3]>) -> Self {
 		Self {
 			vertices: vertices,
 			indices: indices,
@@ -40,14 +44,14 @@ fn main() {
 		.unwrap();
 
 	let vertices = vec![
-		Vector3::new(-0.5, -0.5, -0.5),
-		Vector3::new(0.5, -0.5, -0.5),
-		Vector3::new(0.5, 0.5, -0.5),
-		Vector3::new(-0.5, 0.5, -0.5),
-		Vector3::new(-0.5, -0.5, 0.5),
-		Vector3::new(0.5, -0.5, 0.5),
-		Vector3::new(0.5, 0.5, 0.5),
-		Vector3::new(-0.5, 0.5, 0.5),
+		Vec3::new(-0.5, -0.5, -0.5),
+		Vec3::new(0.5, -0.5, -0.5),
+		Vec3::new(0.5, 0.5, -0.5),
+		Vec3::new(-0.5, 0.5, -0.5),
+		Vec3::new(-0.5, -0.5, 0.5),
+		Vec3::new(0.5, -0.5, 0.5),
+		Vec3::new(0.5, 0.5, 0.5),
+		Vec3::new(-0.5, 0.5, 0.5),
 	];
 
 	let indices = vec![
