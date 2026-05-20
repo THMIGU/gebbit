@@ -1,3 +1,4 @@
+use nalgebra::Vector3;
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
 
@@ -5,6 +6,20 @@ const TICK_RATE: f64 = 120_f64;
 
 const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
+
+struct Mesh {
+	vertices: Vec<Vector3<f32>>,
+	indices: Vec<[u32; 3]>,
+}
+
+impl Mesh {
+	fn new(vertices: Vec<Vector3<f32>>, indices: Vec<[u32; 3]>) -> Self {
+		Self {
+			vertices: vertices,
+			indices: indices,
+		}
+	}
+}
 
 fn main() {
 	let sdl_context = sdl3::init().unwrap();
@@ -23,6 +38,34 @@ fn main() {
 	let mut event_pump = sdl_context
 		.event_pump()
 		.unwrap();
+
+	let vertices = vec![
+		Vector3::new(-0.5, -0.5, -0.5),
+		Vector3::new(0.5, -0.5, -0.5),
+		Vector3::new(0.5, 0.5, -0.5),
+		Vector3::new(-0.5, 0.5, -0.5),
+		Vector3::new(-0.5, -0.5, 0.5),
+		Vector3::new(0.5, -0.5, 0.5),
+		Vector3::new(0.5, 0.5, 0.5),
+		Vector3::new(-0.5, 0.5, 0.5),
+	];
+
+	let indices = vec![
+		[0, 1, 2],
+		[0, 2, 3],
+		[1, 5, 6],
+		[1, 6, 2],
+		[5, 4, 7],
+		[5, 7, 6],
+		[4, 0, 3],
+		[4, 3, 7],
+		[2, 3, 7],
+		[2, 7, 6],
+		[1, 0, 4],
+		[1, 4, 5],
+	];
+
+	let cube_mesh = Mesh::new(vertices, indices);
 
 	let mut last_frame = Instant::now();
 	let mut accumulator = Duration::new(0, 0);

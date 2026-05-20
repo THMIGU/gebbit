@@ -8,3 +8,4 @@ sdl3 = {
     version = "0.18.3",
     features = ["build-from-source-static", "image"]
 }
+nalgebra = "0.34.2"
