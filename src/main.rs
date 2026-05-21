@@ -1,4 +1,5 @@
 mod mesh;
+mod object;
 mod renderer;
 mod vec2;
 mod vec3;
