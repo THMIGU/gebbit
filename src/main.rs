@@ -88,7 +88,7 @@ fn main() {
 		canvas.set_draw_color(Color::BLACK);
 		canvas.clear();
 
-		canvas.set_draw_color(Color::RED);
+		canvas.set_draw_color(Color::WHITE);
 		renderer.render_mesh(&cube_mesh, &mut canvas);
 
 		canvas.present();
