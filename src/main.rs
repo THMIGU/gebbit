@@ -1,6 +1,10 @@
+mod mesh;
+mod renderer;
 mod vec2;
 mod vec3;
 
+use crate::mesh::Mesh;
+use crate::renderer::Renderer;
 use crate::vec3::Vec3;
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
@@ -11,20 +15,6 @@ const WINDOW_WIDTH: u32 = 800;
 const WINDOW_HEIGHT: u32 = 600;
 
 const FOV: f32 = 70_f32;
-
-struct Mesh {
-	vertices: Vec<Vec3>,
-	indices: Vec<[usize; 3]>,
-}
-
-impl Mesh {
-	fn new(vertices: Vec<Vec3>, indices: Vec<[usize; 3]>) -> Self {
-		Self {
-			vertices: vertices,
-			indices: indices,
-		}
-	}
-}
 
 fn main() {
 	let sdl_context = sdl3::init().unwrap();
@@ -39,6 +29,7 @@ fn main() {
 		.unwrap();
 
 	let mut canvas = window.into_canvas();
+	let renderer = Renderer::new(WINDOW_WIDTH, WINDOW_HEIGHT, FOV);
 
 	let mut event_pump = sdl_context
 		.event_pump()
@@ -98,34 +89,7 @@ fn main() {
 		canvas.clear();
 
 		canvas.set_draw_color(Color::RED);
-
-		let vertices = &cube_mesh.vertices;
-		let indices = &cube_mesh.indices;
-
-		for index in indices {
-			let v0 = vertices[index[0]];
-			let v1 = vertices[index[1]];
-			let v2 = vertices[index[2]];
-
-			let aspect = WINDOW_WIDTH as f32 / WINDOW_HEIGHT as f32;
-			let p0 = v0.proj(FOV.to_radians(), aspect);
-			let p1 = v1.proj(FOV.to_radians(), aspect);
-			let p2 = v2.proj(FOV.to_radians(), aspect);
-
-			let s0 = p0.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
-			let s1 = p1.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
-			let s2 = p2.to_screen_space(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-			canvas
-				.draw_line(s0.as_point(), s1.as_point())
-				.unwrap();
-			canvas
-				.draw_line(s1.as_point(), s2.as_point())
-				.unwrap();
-			canvas
-				.draw_line(s2.as_point(), s0.as_point())
-				.unwrap();
-		}
+		renderer.render_mesh(&cube_mesh, &mut canvas);
 
 		canvas.present();
 	}
