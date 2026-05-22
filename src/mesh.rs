@@ -1,5 +1,6 @@
 use crate::vec3::Vec3;
 
+#[derive(Clone)]
 pub struct Mesh {
 	pub vertices: Vec<Vec3>,
 	pub indices: Vec<[usize; 3]>,

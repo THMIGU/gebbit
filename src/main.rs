@@ -4,9 +4,7 @@ mod renderer;
 mod vec2;
 mod vec3;
 
-use crate::mesh::Mesh;
-use crate::renderer::Renderer;
-use crate::vec3::Vec3;
+use crate::{mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3};
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
 
@@ -37,14 +35,14 @@ fn main() {
 		.unwrap();
 
 	let vertices: Vec<Vec3> = vec![
-		Vec3::new(-0.5, -0.5, -0.5 + 3_f32),
-		Vec3::new(0.5, -0.5, -0.5 + 3_f32),
-		Vec3::new(0.5, 0.5, -0.5 + 3_f32),
-		Vec3::new(-0.5, 0.5, -0.5 + 3_f32),
-		Vec3::new(-0.5, -0.5, 0.5 + 3_f32),
-		Vec3::new(0.5, -0.5, 0.5 + 3_f32),
-		Vec3::new(0.5, 0.5, 0.5 + 3_f32),
-		Vec3::new(-0.5, 0.5, 0.5 + 3_f32),
+		Vec3::new(-0.5, -0.5, -0.5),
+		Vec3::new(0.5, -0.5, -0.5),
+		Vec3::new(0.5, 0.5, -0.5),
+		Vec3::new(-0.5, 0.5, -0.5),
+		Vec3::new(-0.5, -0.5, 0.5),
+		Vec3::new(0.5, -0.5, 0.5),
+		Vec3::new(0.5, 0.5, 0.5),
+		Vec3::new(-0.5, 0.5, 0.5),
 	];
 
 	let indices: Vec<[usize; 3]> = vec![
@@ -63,6 +61,10 @@ fn main() {
 	];
 
 	let cube_mesh = Mesh::new(vertices, indices);
+	let mut cube = Object::new(cube_mesh);
+
+	cube.pos = Vec3::new(0_f32, 0_f32, 3_f32);
+	cube.rot = Vec3::new(0_f32, 45_f32.to_radians(), 0_f32);
 
 	let mut last_frame = Instant::now();
 	let mut accumulator = Duration::new(0, 0);
@@ -83,6 +85,10 @@ fn main() {
 		}
 
 		while accumulator >= tick_time {
+			cube.rot = cube
+				.rot
+				.add(Vec3::new(0_f32, 1_f32.to_radians(), 2_f32.to_radians()));
+
 			accumulator -= tick_time;
 		}
 
@@ -90,7 +96,7 @@ fn main() {
 		canvas.clear();
 
 		canvas.set_draw_color(Color::WHITE);
-		renderer.render_mesh(&cube_mesh, &mut canvas);
+		renderer.render_object(&cube, &mut canvas);
 
 		canvas.present();
 	}

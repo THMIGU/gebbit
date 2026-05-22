@@ -1,4 +1,4 @@
-use crate::mesh::Mesh;
+use crate::{mesh::Mesh, object::Object};
 use sdl3::{render::Canvas, video::Window};
 
 pub struct Renderer {
@@ -16,7 +16,7 @@ impl Renderer {
 		}
 	}
 
-	pub fn render_mesh(&self, mesh: &Mesh, canvas: &mut Canvas<Window>) {
+	fn render_mesh(&self, mesh: &Mesh, canvas: &mut Canvas<Window>) {
 		let aspect = self.width as f32 / self.height as f32;
 		let fov = self
 			.fov
@@ -45,5 +45,20 @@ impl Renderer {
 				.draw_line(s2.as_point(), s0.as_point())
 				.unwrap();
 		}
+	}
+
+	pub fn render_object(&self, object: &Object, canvas: &mut Canvas<Window>) {
+		let mut mesh = object.mesh.clone();
+
+		mesh.vertices = mesh
+			.vertices
+			.iter()
+			.map(|p| {
+				p.rotate(object.rot)
+					.add(object.pos)
+			})
+			.collect();
+
+		self.render_mesh(&mesh, canvas);
 	}
 }
