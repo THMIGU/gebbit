@@ -33,6 +33,10 @@ impl Vec3 {
 		Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
 	}
 
+	pub fn mul(self, scl: f32) -> Vec3 {
+		Vec3::new(self.x * scl, self.y * scl, self.z * scl)
+	}
+
 	fn rotate_x(self, angle: f32) -> Vec3 {
 		let sin = angle.sin();
 		let cos = angle.cos();

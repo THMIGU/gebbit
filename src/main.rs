@@ -1,10 +1,14 @@
+mod camera;
 mod mesh;
 mod object;
 mod renderer;
 mod vec2;
 mod vec3;
+mod world;
 
-use crate::{mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3};
+use crate::{
+	camera::Camera, mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3, world::World,
+};
 use sdl3::{event::Event, pixels::Color};
 use std::time::{Duration, Instant};
 
@@ -17,9 +21,7 @@ const FOV: f32 = 70_f32;
 
 fn main() {
 	let sdl_context = sdl3::init().unwrap();
-	let video_subsystem = sdl_context
-		.video()
-		.unwrap();
+	let video_subsystem = sdl_context.video().unwrap();
 
 	let window = video_subsystem
 		.window("gebbit", WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -28,7 +30,7 @@ fn main() {
 		.unwrap();
 
 	let mut canvas = window.into_canvas();
-	let renderer = Renderer::new(WINDOW_WIDTH, WINDOW_HEIGHT, FOV);
+	let renderer = Renderer::new(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	let mut event_pump = sdl_context
 		.event_pump()
@@ -62,9 +64,15 @@ fn main() {
 
 	let cube_mesh = Mesh::new(vertices, indices);
 	let mut cube = Object::new(cube_mesh);
-
-	cube.pos = Vec3::new(0_f32, 0_f32, 3_f32);
+	cube.pos = Vec3::new(0_f32, 0_f32, 1.5_f32);
 	cube.rot = Vec3::new(0_f32, 45_f32.to_radians(), 0_f32);
+
+	let mut camera = Camera::new(FOV);
+	camera.rot = Vec3::new(0_f32, 0_f32, 0_f32);
+
+	let mut world = World::new();
+	world.objects.push(cube);
+	world.cameras.push(camera);
 
 	let mut last_frame = Instant::now();
 	let mut accumulator = Duration::new(0, 0);
@@ -85,9 +93,11 @@ fn main() {
 		}
 
 		while accumulator >= tick_time {
+			let cube = &mut world.objects[0];
+
 			cube.rot = cube
 				.rot
-				.add(Vec3::new(0_f32, 1_f32.to_radians(), 2_f32.to_radians()));
+				.add(Vec3::new(0_f32, 2_f32.to_radians(), 0_f32));
 
 			accumulator -= tick_time;
 		}
@@ -96,7 +106,7 @@ fn main() {
 		canvas.clear();
 
 		canvas.set_draw_color(Color::WHITE);
-		renderer.render_object(&cube, &mut canvas);
+		renderer.render_world(&world, &world.cameras[0], &mut canvas);
 
 		canvas.present();
 	}

@@ -1,26 +1,22 @@
-use crate::{mesh::Mesh, object::Object};
+use crate::{camera::Camera, mesh::Mesh, object::Object, world::World};
 use sdl3::{render::Canvas, video::Window};
 
 pub struct Renderer {
 	pub width: u32,
 	pub height: u32,
-	pub fov: f32,
 }
 
 impl Renderer {
-	pub fn new(width: u32, height: u32, fov: f32) -> Self {
+	pub fn new(width: u32, height: u32) -> Self {
 		Self {
 			width: width,
 			height: height,
-			fov: fov,
 		}
 	}
 
-	fn render_mesh(&self, mesh: &Mesh, canvas: &mut Canvas<Window>) {
+	fn render_mesh(&self, mesh: &Mesh, fov: f32, canvas: &mut Canvas<Window>) {
 		let aspect = self.width as f32 / self.height as f32;
-		let fov = self
-			.fov
-			.to_radians();
+		let fov = fov.to_radians();
 
 		for index in &mesh.indices {
 			let v0 = mesh.vertices[index[0]];
@@ -47,7 +43,7 @@ impl Renderer {
 		}
 	}
 
-	pub fn render_object(&self, object: &Object, canvas: &mut Canvas<Window>) {
+	fn render_object(&self, object: &Object, camera: &Camera, canvas: &mut Canvas<Window>) {
 		let mut mesh = object.mesh.clone();
 
 		mesh.vertices = mesh
@@ -57,8 +53,18 @@ impl Renderer {
 				p.rotate(object.rot)
 					.add(object.pos)
 			})
+			.map(|p| {
+				p.rotate(camera.rot.mul(-1_f32))
+					.add(camera.pos.mul(-1_f32))
+			})
 			.collect();
 
-		self.render_mesh(&mesh, canvas);
+		self.render_mesh(&mesh, camera.fov, canvas);
+	}
+
+	pub fn render_world(&self, world: &World, camera: &Camera, canvas: &mut Canvas<Window>) {
+		for object in &world.objects {
+			self.render_object(object, camera, canvas);
+		}
 	}
 }
