@@ -1,4 +1,5 @@
 mod camera;
+mod game;
 mod mesh;
 mod object;
 mod renderer;
@@ -7,9 +8,10 @@ mod vec3;
 mod world;
 
 use crate::{
-	camera::Camera, mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3, world::World,
+	camera::Camera, game::Game, mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3,
+	world::World,
 };
-use sdl3::{event::Event, pixels::Color};
+use sdl3::{event::Event, keyboard::Scancode};
 use std::time::{Duration, Instant};
 
 const TICK_RATE: f64 = 120_f64;
@@ -29,8 +31,11 @@ fn main() {
 		.build()
 		.unwrap();
 
+	sdl_context
+		.mouse()
+		.set_relative_mouse_mode(&window, true);
+
 	let mut canvas = window.into_canvas();
-	let renderer = Renderer::new(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	let mut event_pump = sdl_context
 		.event_pump()
@@ -64,7 +69,7 @@ fn main() {
 
 	let cube_mesh = Mesh::new(vertices, indices);
 	let mut cube = Object::new(cube_mesh);
-	cube.pos = Vec3::new(0_f32, 0_f32, 1.5_f32);
+	cube.pos = Vec3::new(0_f32, 0_f32, 2_f32);
 	cube.rot = Vec3::new(0_f32, 45_f32.to_radians(), 0_f32);
 
 	let mut camera = Camera::new(FOV);
@@ -73,6 +78,10 @@ fn main() {
 	let mut world = World::new();
 	world.objects.push(cube);
 	world.cameras.push(camera);
+
+	let renderer = Renderer::new(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	let mut game = Game::new(world, renderer);
 
 	let mut last_frame = Instant::now();
 	let mut accumulator = Duration::new(0, 0);
@@ -93,21 +102,12 @@ fn main() {
 		}
 
 		while accumulator >= tick_time {
-			let cube = &mut world.objects[0];
-
-			cube.rot = cube
-				.rot
-				.add(Vec3::new(0_f32, 2_f32.to_radians(), 0_f32));
-
+			let keyboard = event_pump.keyboard_state();
+			let mouse = event_pump.relative_mouse_state();
+			game.update(keyboard, mouse);
 			accumulator -= tick_time;
 		}
 
-		canvas.set_draw_color(Color::BLACK);
-		canvas.clear();
-
-		canvas.set_draw_color(Color::WHITE);
-		renderer.render_world(&world, &world.cameras[0], &mut canvas);
-
-		canvas.present();
+		game.render(&mut canvas);
 	}
 }

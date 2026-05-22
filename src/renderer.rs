@@ -9,8 +9,8 @@ pub struct Renderer {
 impl Renderer {
 	pub fn new(width: u32, height: u32) -> Self {
 		Self {
-			width: width,
-			height: height,
+			width,
+			height,
 		}
 	}
 
@@ -50,12 +50,12 @@ impl Renderer {
 			.vertices
 			.iter()
 			.map(|p| {
-				p.rotate(object.rot)
+				p.rotate_xyz(object.rot)
 					.add(object.pos)
 			})
 			.map(|p| {
-				p.rotate(camera.rot.mul(-1_f32))
-					.add(camera.pos.mul(-1_f32))
+				p.add(camera.pos.mul(-1_f32))
+					.rotate_yxz(camera.rot.mul(-1_f32))
 			})
 			.collect();
 

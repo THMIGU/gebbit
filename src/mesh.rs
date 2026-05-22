@@ -9,8 +9,8 @@ pub struct Mesh {
 impl Mesh {
 	pub fn new(vertices: Vec<Vec3>, indices: Vec<[usize; 3]>) -> Self {
 		Self {
-			vertices: vertices,
-			indices: indices,
+			vertices,
+			indices,
 		}
 	}
 }

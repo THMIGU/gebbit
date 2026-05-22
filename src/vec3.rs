@@ -10,9 +10,9 @@ pub struct Vec3 {
 impl Vec3 {
 	pub fn new(x: f32, y: f32, z: f32) -> Self {
 		Self {
-			x: x,
-			y: y,
-			z: z,
+			x,
+			y,
+			z,
 		}
 	}
 
@@ -31,6 +31,10 @@ impl Vec3 {
 
 	pub fn add(self, other: Vec3) -> Vec3 {
 		Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
+	}
+
+	pub fn sub(self, other: Vec3) -> Vec3 {
+		Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
 	}
 
 	pub fn mul(self, scl: f32) -> Vec3 {
@@ -58,9 +62,15 @@ impl Vec3 {
 		Vec3::new(self.x * cos - self.y * sin, self.x * sin + self.y * cos, self.z)
 	}
 
-	pub fn rotate(self, other: Vec3) -> Vec3 {
+	pub fn rotate_xyz(self, other: Vec3) -> Vec3 {
 		self.rotate_x(other.x)
 			.rotate_y(other.y)
+			.rotate_z(other.z)
+	}
+
+	pub fn rotate_yxz(self, other: Vec3) -> Vec3 {
+		self.rotate_y(other.y)
+			.rotate_x(other.x)
 			.rotate_z(other.z)
 	}
 }

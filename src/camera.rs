@@ -11,7 +11,7 @@ impl Camera {
 		Self {
 			pos: Vec3::new(0_f32, 0_f32, 0_f32),
 			rot: Vec3::new(0_f32, 0_f32, 0_f32),
-			fov: fov,
+			fov,
 		}
 	}
 }
