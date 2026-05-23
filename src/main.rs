@@ -11,7 +11,7 @@ use crate::{
 	camera::Camera, game::Game, mesh::Mesh, object::Object, renderer::Renderer, vec3::Vec3,
 	world::World,
 };
-use sdl3::{event::Event, keyboard::Scancode};
+use sdl3::event::Event;
 use std::time::{Duration, Instant};
 
 const TICK_RATE: f64 = 120_f64;
@@ -87,9 +87,14 @@ fn main() {
 	let mut accumulator = Duration::new(0, 0);
 	let tick_time = Duration::from_secs_f64(1_f64 / TICK_RATE);
 
+	let mut fps_timer = Duration::ZERO;
+	let mut fps_frames = 0;
+	let mut displayed_fps = 0_f64;
+
 	'running: loop {
 		let now = Instant::now();
-		accumulator += now.duration_since(last_frame);
+		let frame_duration = now.duration_since(last_frame);
+		accumulator += frame_duration;
 		last_frame = now;
 
 		for event in event_pump.poll_iter() {
@@ -109,5 +114,20 @@ fn main() {
 		}
 
 		game.render(&mut canvas);
+
+		fps_timer += frame_duration;
+		fps_frames += 1;
+
+		if fps_timer > Duration::from_secs(1) {
+			displayed_fps = fps_frames as f64 / fps_timer.as_secs_f64();
+
+			fps_timer = Duration::ZERO;
+			fps_frames = 0;
+		}
+
+		canvas
+			.window_mut()
+			.set_title(&format!("gebbit {:.0} FPS", displayed_fps))
+			.unwrap();
 	}
 }
